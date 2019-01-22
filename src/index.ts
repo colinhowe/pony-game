@@ -477,9 +477,34 @@ window.setInterval(function() {
 
 
     // Keyboard input
-    if (pressed[KEY_ARROW_RIGHT] || (gamepad && gamepad.axes[6] == 1)) {
+    let gamepadXAxis = 0;
+    let gamepad = null;
+    if (gamepadIndex !== null) {
+        gamepad = navigator.getGamepads()[gamepadIndex];
+        for (let i = 0; i < gamepad.axes.length; i += 2) {
+            if (Math.abs(gamepad.axes[i * 2]) == 1) {
+                gamepadXAxis = gamepad.axes[i * 2];
+                console.log(`I got axis ${gamepadXAxis}`);
+            }
+        }
+        for (let i = 0; i < gamepad.buttons.length; i++) {
+            if (gamepad.buttons[i].pressed) {
+                console.log(`Button ${i} pressed`);
+            }
+        }
+
+        if (gamepad.buttons[14] && gamepad.buttons[14].pressed) {
+            gamepadXAxis = -1;
+        }
+        if (gamepad.buttons[15] && gamepad.buttons[15].pressed) {
+            gamepadXAxis = 1;
+        }
+    }
+
+
+    if (pressed[KEY_ARROW_RIGHT] || gamepadXAxis == 1) {
         ponyActor.velocityX = PONY_HORIZONTAL_SPEED;
-    } else if (pressed[KEY_ARROW_LEFT] || (gamepad && gamepad.axes[6] == -1)) {
+    } else if (pressed[KEY_ARROW_LEFT] || gamepadXAxis == -1) {
         ponyActor.velocityX = -PONY_HORIZONTAL_SPEED;
     } else {
         ponyActor.velocityX = 0;
@@ -555,12 +580,12 @@ window.onkeyup=function(e){
      delete pressed[e.keyCode];
 }
 
-let gamepad;
+let gamepadIndex = null;
 
 window.addEventListener("gamepadconnected", function(e : GamepadEvent) {
   console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
     e.gamepad.index, e.gamepad.id,
       e.gamepad.buttons.length, e.gamepad.axes.length);
 
-    gamepad = navigator.getGamepads()[e.gamepad.index];
+    gamepadIndex = e.gamepad.index;
 });
