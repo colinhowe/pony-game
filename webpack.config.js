@@ -12,6 +12,15 @@ module.exports = {
         exclude: /node_modules/
       },
       {
+        test: /\.(png|jpg|gif)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {},
+          },
+        ],
+      },
+      {
         test: /\.html$/,
         use: [
           {
@@ -23,7 +32,12 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ]
+    extensions: [ '.tsx', '.ts', '.js' ],
+    modules: [
+      path.resolve('./src'),
+      path.resolve('.'),
+      'node_modules'
+    ]
   },
   output: {
     filename: 'bundle.js',
@@ -34,5 +48,10 @@ module.exports = {
       template: "./src/index.html",
       filename: "./index.html"
     })
-  ]
+  ],
+  devServer: {
+    contentBase: path.join(__dirname, 'dist'),
+    compress: true,
+    port: 9000
+  }
 };

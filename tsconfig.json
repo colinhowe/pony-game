@@ -6,6 +6,14 @@
     "module": "es6",
     "target": "es5",
     "jsx": "react",
-    "allowJs": true
-  }
+    "allowJs": true,
+    "types": [
+      "webpack-env"
+    ],
+    "lib": ["es6", "dom"]
+  },
+  "include": [
+    "./typings/**/*.d.ts"
+  ]
+
 }

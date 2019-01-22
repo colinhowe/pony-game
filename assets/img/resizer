@@ -1,4 +1,5 @@
 #!/bin/bash
+mkdir -p build
 
 resize() {
     convert "originals/$1" \
@@ -8,18 +9,42 @@ resize() {
         -define png:compression-level=9 \
         -unsharp 0.25x0.25+8+0.065 \
         -filter lanczos \
-        -set filename:base "%[base]" "%[filename:base].png" 
+        -set filename:base "%[base]" "$2/%[filename:base].png" 
 }
 
 # Grass
-resize "grass.png[x28]"
+resize "grass.png[x28]" "."
 
 # Pony
-resize "pony*.png[100x]"
+resize "pony*.png[100x]" "build"
+convert \
+  build/pony-large.png \
+  build/pony-flap1.png \
+  build/pony-flap2.png \
+  build/pony-flap3.png \
+  build/pony-flap4.png \
+  build/pony-gallop1.png \
+  build/pony-gallop2.png \
+  build/pony-gallop3.png \
+  build/pony-gallop4.png \
+  +append \
+  pony-sprite.png
 
 # Star
-resize "star*.png[20x]"
+resize "star*.png[20x]" "build"
+convert \
+  build/star-cyan.png \
+  build/star-green.png \
+  build/star-orange.png \
+  build/star-pink.png \
+  build/star-purple.png \
+  build/star-red.png \
+  build/star-yellow.png \
+  +append \
+  star-sprite.png
 
 # Rainbow
-resize "rainbow*.png[80x]"
+resize "rainbow*.png[80x]" "."
 
+# Clean up build folder
+rm -rf build
