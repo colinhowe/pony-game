@@ -8,6 +8,7 @@ const rainbowSrc = require('assets/img/rainbow-large.png');
 const actors = new Set();
 
 let cameraY = 0;
+let score = 0;
 
 class ActorCollisionMap {
     private map;
@@ -30,6 +31,14 @@ class ActorCollisionMap {
             this.map[checkY] = [];
         }
         this.map[checkY].push(actor);
+    }
+
+    removeActor(actor) {
+        const checkOldY = Math.floor(actor.y / 200);
+        const potentials = this.map[checkOldY];
+        if (this.map[checkOldY]) {
+            this.map[checkOldY] = this.map[checkOldY].filter((other) => other != actor);
+        }
     }
 
     collectCollisions(actor) {
@@ -211,6 +220,7 @@ class Actor {
 
     destroy() {
         actors.delete(this);
+        collisionMap.removeActor(this);
     }
 
     checkInteractions() {
@@ -234,6 +244,7 @@ const ponySpriteMeta = new SpriteMeta(ponySrc, 100, 95, 0, -5, {
 });
 
 const platformSpriteMeta = new SpriteMeta(platformSrc, 250, 28, 0, 0, {});
+const rainbowSpriteMeta = new SpriteMeta(rainbowSrc, 80, 49, 0, 0, {});
 
 
 const starSpriteMeta = new SpriteMeta(starSrc, 20, 19, 0, 0, {
@@ -368,6 +379,34 @@ class Platform extends Actor {
     }
 }
 
+class Rainbow extends Actor {
+    private initialY;
+
+    constructor(x, y) {
+        super(rainbowSpriteMeta, x, y);
+        this.initialY = y;
+    }
+
+    draw(context, time, elapsed) {
+        this.realY = this.initialY - Math.sin(time / 250) * 5;
+        this.y = this.realY;
+        this.sprite.y = this.y;
+
+        super.draw(context, time, elapsed);
+    }
+
+    interact(other) {
+        if (!(other instanceof Pony)) {
+            return;
+        }
+
+        score += 1;
+        this.destroy();
+    }
+}
+
+
+
 
 const ponyActor = new Pony(document.body.clientWidth / 2, document.body.clientHeight - 200);
 for (let platformX = 0; platformX < document.body.clientWidth; platformX += 250) {
@@ -396,6 +435,7 @@ for (let layer = 1; layer < 200; layer += 1) {
     }
 
     new Platform(newX, document.body.clientHeight - 28 - layer * 180);
+    new Rainbow(newX + 85, document.body.clientHeight - 28 - layer * 180 - 60);
     lastX = newX;
 }
 
@@ -466,6 +506,19 @@ window.setInterval(function() {
         actor.draw(context2, time, elapsed);
     });
     lastTime = time;
+
+
+    context2.save();
+    context2.font = "80px Sans";
+
+    // Fill with gradient
+    const txt = `${score}`;
+    context2.fillStyle = '#ff00ff';
+    const txtSize = context2.measureText(txt);
+    context2.fillText(txt, document.body.clientWidth - 30 - txtSize.width, 70 + 30);
+    context2.restore();
+
+    // Render!
     context1.drawImage(canvas2, 0, 0);
 
     // Start moving the camera if the pony is heading out of bounds
